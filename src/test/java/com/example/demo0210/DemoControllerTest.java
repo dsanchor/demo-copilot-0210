@@ -17,7 +17,7 @@ public class DemoControllerTest {
     public void testHelloWorld() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/hello"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Hello world!"));
+                .andExpect(MockMvcResultMatchers.content().string("Hello world from Spring Boot!"));
     }
 
     @Test

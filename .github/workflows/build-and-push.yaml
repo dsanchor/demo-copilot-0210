@@ -11,6 +11,10 @@ env:
   DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
   DOCKER_REGISTRY: ghcr.io
   DOCKER_TAG: ${{ github.sha }}
+  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  AKS_RESOURCE_GROUP: aks-demo-alb-rg
+  AKS_CLUSTER_NAME: demo
+  AKS_NAMESPACE: demo
 
 jobs:
   build-and-push:
@@ -44,3 +48,22 @@ jobs:
     # push container image
       - name: Push dockerfile 
         run: docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.DOCKER_TAG}}
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.AZURE_CREDENTIALS }}
+    
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+
+      - name: Get AKS credentials
+        run: az aks get-credentials --resource-group ${{ env.AKS_RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+
+      - name: Replace IMAGE_TAG in application.yaml
+        run: sed -i "s/\$IMAGE_TAG/${{ env.DOCKER_TAG }}/g" k8s/application.yaml
+
+      - name: Deploy to AKS
+        run: kubectl apply -f k8s/application.yaml -n ${{ env.AKS_NAMESPACE }}

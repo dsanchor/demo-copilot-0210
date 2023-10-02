@@ -48,3 +48,42 @@ docker build -t spring-boot-rest-api-demo .
 docker run -p 8080:8080 spring-boot-rest-api-demo
 ```
 
+# Deploy to AKS
+
+## Environment variables
+
+```bash
+export RESOURCE_GROUP=aks-demo-alb-rg
+export CLUSTER_NAME=demo
+export NAMESPACE=demo
+```
+
+## Get AKS credentials
+
+```bash
+az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
+```
+
+## Create namespace
+
+```bash
+kubectl create namespace $NAMESPACE
+```
+
+## Deploy the application
+
+```bash
+kubectl apply -f k8s/application.yaml -n $NAMESPACE
+```
+
+## Get service IP
+
+```bash
+export SVC_IP=`kubectl get svc myapp -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+```
+
+## Test the application
+
+```bash
+curl http://$SVC_IP/hello
+```

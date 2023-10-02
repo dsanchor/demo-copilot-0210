@@ -10,7 +10,7 @@ public class DemoController {
     @GetMapping("/hello")
     public String helloWorld() {
         System.out.println("Received request for /hello");
-        String response = "Hello world!";
+        String response = "Hello world from Spring Boot!";
         System.out.println("Sending response: " + response);
         return response;
     }
